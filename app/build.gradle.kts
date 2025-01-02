@@ -57,8 +57,8 @@ android {
         targetSdk = project.properties["android_targetSdk"].toString().toInt()
 
         applicationId = "li.songe.gkd"
-        versionCode = 40
-        versionName = "1.8.0-beta.12"
+        versionCode = 46
+        versionName = "1.8.4-beta.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -119,7 +119,7 @@ android {
         debug {
             versionNameSuffix = vnSuffix
             applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "GKD-debug")
+            resValue("string", "app_name", "GKD-测试环境")
             resValue("string", "capture_label", "捕获快照-debug")
             resValue("string", "import_desc", "GKD-debug-导入数据")
         }
