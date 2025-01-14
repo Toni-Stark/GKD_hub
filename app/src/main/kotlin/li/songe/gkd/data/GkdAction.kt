@@ -350,47 +350,77 @@ sealed class ActionPerformer(val action: String) {
         }
     }
 
+    // 输入验证码
+    data object InputCodeMutex : ActionPerformer("inputCodeMutex") {
+        override fun perform(
+            context: AccessibilityService,
+            node: AccessibilityNodeInfo,
+            position: RawSubscription.Position?,
+            shizukuClickFc: ((x: Float, y: Float) -> Boolean?)?
+        ): ActionResult {
+            val scope = CoroutineScope(Dispatchers.Default)
+            scope.launch {
+                try {
+                    toast("等待验证码输入完成")
+                    isUserNameInputComplete.collect { complete ->
+                        if (complete) {
+                            toast("开始输入验证码")
+                            performInput(node, "122356", "验证码框") // 输入密码
+                            isUserNameInputComplete.value = false
+                        }
+                    }
+                } finally {
+                    scope.cancel() // 避免协程泄漏
+                }
+            }
+            return ActionResult(action = action, result = true)
+        }
+    }
 
+    data object LoginBind : ActionPerformer("loginBind") {
+        override fun perform(
+            context: AccessibilityService,
+            node: AccessibilityNodeInfo,
+            position: RawSubscription.Position?,
+            shizukuClickFc: ((x: Float, y: Float) -> Boolean?)?,
+        ): ActionResult {
+            val rect = Rect()
+            node.getBoundsInScreen(rect)
+            val p = position?.calc(rect)
+            val x = p?.first ?: ((rect.right + rect.left) / 2f)
+            val y = p?.second ?: ((rect.bottom + rect.top) / 2f)
+            if (x < 0 || y < 0 || x > ScreenUtils.getScreenWidth() || y > ScreenUtils.getScreenHeight()) {
+                Log.w("LoginBind", "点击点超出屏幕范围: ($x, $y)")
+                return ActionResult(action, false)
+            }
+            val scope = CoroutineScope(Dispatchers.Default)
+            scope.launch {
+                try {
+                    // 延迟 6 秒
+                    delay(6000)
+                    // 执行点击逻辑
+                    val result = shizukuClickFc?.invoke(x, y) ?: run {
+                        val gestureDescription = GestureDescription.Builder()
+                        val path = Path()
+                        path.moveTo(x, y)
+                        gestureDescription.addStroke(
+                            GestureDescription.StrokeDescription(
+                                path, 0, ViewConfiguration.getTapTimeout().toLong()
+                            )
+                        )
+                        context.dispatchGesture(gestureDescription.build(), null, null)
+                    }
 
-//    data object InputUserNameMutex : ActionPerformer("inputUserNameMutex") {
-//        override fun perform(
-//            context: AccessibilityService,
-//            node: AccessibilityNodeInfo,
-//            position: RawSubscription.Position?,
-//            shizukuClickFc: ((x: Float, y: Float) -> Boolean?)?
-//        ): ActionResult {
-//            runBlocking {
-//                // 输入用户名逻辑
-//                delay(2000) // 模拟输入时间
-//                isUserNameInputComplete.value = true // 标志完成
-//            }
-//            return ActionResult(action = action, result = true)
-//        }
-//    }
-//    data object InputPassWordMutex : ActionPerformer("inputPassWordMutex") {
-//        override fun perform(
-//            context: AccessibilityService,
-//            node: AccessibilityNodeInfo,
-//            position: RawSubscription.Position?,
-//            shizukuClickFc: ((x: Float, y: Float) -> Boolean?)?
-//        ): ActionResult {
-//            runBlocking {
-//                isUserNameInputComplete.collect {
-//                    if (it) {
-//                        // 开始输入密码逻辑
-//                        toast("触发输入密码")
-//                        delay(2000) // 模拟输入时间
-//                    }
-//                }
-//            }
-//            return ActionResult(action = action, result = true)
-//        }
-//    }
-
-
-
-
-
+                    Log.d("LoginBind", "延迟点击完成: ($x, $y), 结果: $result")
+                } catch (e: Exception) {
+                    Log.e("LoginBind", "延迟点击失败: ${e.message}")
+                } finally {
+                    scope.cancel() // 释放协程
+                }
+            }
+            return ActionResult(action, true)
+        }
+    }
 
     data object InputCode : ActionPerformer("inputCode") {
         override fun perform(
@@ -733,7 +763,7 @@ sealed class ActionPerformer(val action: String) {
 
     companion object {
         private val allSubObjects by lazy {
-            arrayOf(ClickNode, ClickCenter, Click, LongClickNode, LongClickCenter, LongClick,HandleStart,InputUserName,InputPassWord,InputUserNameMutex,InputPassWordMutex,InputCode, ClickPosition,HandleUp, HandleDown, Back, OnePathClickTab)
+            arrayOf(ClickNode, ClickCenter, Click, LongClickNode, LoginBind, LongClickCenter, LongClick,HandleStart,InputUserName,InputPassWord,InputUserNameMutex,InputCodeMutex,InputPassWordMutex,InputCode, ClickPosition,HandleUp, HandleDown, Back, OnePathClickTab)
         }
 
         fun getAction(action: String?): ActionPerformer {
