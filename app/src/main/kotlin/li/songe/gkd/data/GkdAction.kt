@@ -737,13 +737,7 @@ sealed class ActionPerformer(val action: String) {
     }
 
     private fun mastClickCenter(context:AccessibilityService, rect:Rect) {
-        val currentClassName = context.rootInActiveWindow?.className?.toString() ?: ""
-        // 检查是否是指定页面
-        if (currentClassName == "com.tencent.mm.plugin.webview.ui.tools.MMWebViewUI") {
-            Log.d("Debug", "当前页面为 MMWebViewUI，停止操作")
-            toast("当前页面为 WebViewUI，操作停止")
-            return
-        }
+
         val left = rect.left+((rect.right-rect.left)/2)
         val top = rect.top+((rect.bottom-rect.top)/2)
         Log.d("Log55", left.toString())
@@ -756,13 +750,7 @@ sealed class ActionPerformer(val action: String) {
     }
 
     private fun mastUpSwiper(context:AccessibilityService) {
-        val currentClassName = context.rootInActiveWindow?.className?.toString() ?: ""
-        // 检查是否是指定页面
-        if (currentClassName == "com.tencent.mm.plugin.webview.ui.tools.MMWebViewUI") {
-            Log.d("Debug", "当前页面为 MMWebViewUI，停止操作")
-            toast("当前页面为 WebViewUI，操作停止")
-            return
-        }
+
 
         val path = Path()
         path.moveTo(724F, 1840F) // 起始点在屏幕底部中央
@@ -782,13 +770,7 @@ sealed class ActionPerformer(val action: String) {
     private fun mastDownSwiper(context:AccessibilityService, node:AccessibilityNodeInfo) {
         val packageName = context.rootInActiveWindow?.packageName?.toString() ?: "";
         Log.d("Log877", packageName)
-        val currentClassName = context.rootInActiveWindow?.className?.toString() ?: ""
-        // 检查是否是指定页面
-        if (currentClassName == "com.tencent.mm.plugin.webview.ui.tools.MMWebViewUI") {
-            Log.d("Debug", "当前页面为 MMWebViewUI，停止操作")
-            toast("当前页面为 WebViewUI，操作停止")
-            return
-        }
+
         if (packageName != "com.miui.home" && packageName != "com.bbk.launcher2") {
             val path = Path()
             path.moveTo(622F, 733F) // 起始点在屏幕顶部中央
@@ -807,13 +789,7 @@ sealed class ActionPerformer(val action: String) {
     }
 
     private fun mastStartSwiper(context:AccessibilityService) {
-        val currentClassName = context.rootInActiveWindow?.className?.toString() ?: ""
-        // 检查是否是指定页面
-        if (currentClassName == "com.tencent.mm.plugin.webview.ui.tools.MMWebViewUI") {
-            Log.d("Debug", "当前页面为 MMWebViewUI，停止操作")
-            toast("当前页面为 WebViewUI，操作停止")
-            return 
-        }
+
         val path = Path()
         path.moveTo(1050F, 1050F) // 起始点在屏幕底部中央
         path.lineTo(722F, 1050F) // 结束点在屏幕顶部中央
